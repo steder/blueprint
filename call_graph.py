@@ -73,12 +73,20 @@ class Visitor(ast.NodeVisitor):
         print "scope:", self.scopes[-1]
 
     def visit_Call(self, node):
+        # TODO: define directed edge between the context (namespace/function/class) and called node
+        # The current scope should provide the information necessary
+        # to identify the source for the edge and this current node represents the target
         msg = self._parse_func(node.func)
         if msg:
             # if msg == 'v.calls':
             #     import pdb; pdb.set_trace()
             self.calls.update({msg:1})
         return msg
+
+    # TODO: handle import and import from and use import events to define edges between
+    # the importing module and the imported module
+
+
 
 
 def main():
