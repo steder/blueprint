@@ -10,12 +10,12 @@ class Visitor(ast.NodeVisitor):
         self.calls = collections.Counter()
         self.bindings = collections.defaultdict(dict)
         self.scopes = collections.deque()
-        self.scopes.append('global')
+        # this should probably be initialized with the current module name:
+        self.scopes.append(os.path.basename(__file__))
 
     @property
     def current_scope(self):
         return self.scopes[-1]
-
 
     def _parse_func(self, func):
         if isinstance(func, ast.Name):
