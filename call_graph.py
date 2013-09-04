@@ -3,9 +3,14 @@ import ast
 import collections
 import os
 
+import networkx
+from matplotlib import pyplot
+
+
 
 class Visitor(ast.NodeVisitor):
     def __init__(self):
+        self.G = networkx.Graph()
         self.current_class = None
         self.calls = collections.Counter()
         self.bindings = collections.defaultdict(dict)
@@ -78,9 +83,16 @@ class Visitor(ast.NodeVisitor):
         # to identify the source for the edge and this current node represents the target
         msg = self._parse_func(node.func)
         if msg:
+            self.calls.update({msg:1})
+            # make sure both nodes are added to the graph:
+            self.G.add_node(self.current_scope)
+            self.G.add_node(msg, call_count=self.calls[msg])
+            # create an edge between them:
+            self.G.add_edge(self.current_scope, msg)
+
+            # For debugging it's useful to check on specific nodes here
             # if msg == 'v.calls':
             #     import pdb; pdb.set_trace()
-            self.calls.update({msg:1})
         return msg
 
     # TODO: handle import and import from and use import events to define edges between
@@ -109,6 +121,13 @@ def main():
     print
     print "bindings"
     print v.bindings
+
+    print
+    print "Plot"
+    #networkx.draw_circular(v.G)
+    # oddly circular looks too much like a cirle:
+    networkx.draw(v.G)
+    pyplot.show()
 
     # else:
     #     print "Parsing ourselves as a test file:"
